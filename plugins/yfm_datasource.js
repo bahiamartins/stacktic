@@ -4,25 +4,20 @@ fs   = require('fs'),
 path = require('path'),
 glob = require('glob');
 
-module.exports = function(stacktic, config){
-  config.base = config.base || process.cwd();
-  stacktic.addDataStore('yfm', {
-    get: function(id, cb){  
-      var res  = (glob.sync(path.join(config.base, id), { nonull: false }) || [])
+module.exports = function(stacktic){
+  stacktic.putDataSource('yfm', {
+    load: function(data, cb){
+      var base = stacktic.config.get('plugins.yfm.base') || process.cwd();
+      var res  = (glob.sync(path.join(base, data.path), { nonull: false }) || [])
                   
           .map(function(file){
-
             if (fs.lstatSync(file).isFile()) {
               var parsed = yfm.read(file),
                   res = parsed.context || {};
-              
               res._content = parsed.content;
-              res._id = file.slice(config.base.length);
-
-              stacktic.emit('model.load', res);
+              res._id = file.slice(base.length);
               return res;
-            };
-
+            }
           })
           
           .filter(function(obj){
@@ -33,4 +28,3 @@ module.exports = function(stacktic, config){
     }
   });
 };
-

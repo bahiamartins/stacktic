@@ -1,0 +1,38 @@
+---
+title: Home Page
+slug: home
+---
+
+# Stacktic
+## Stacked statick site generator
+
+- Event driven
+- Asynchronous
+- Flexible
+- Loveable
+
+This is '{{ current.title }}' page.
+Current path is '{{ current.path }}'.
+
+<ul>
+{{#each global.collections.pages.items }}
+<li><a href="{{path}}">{{title}}</a></li>
+{{/each}}
+</ul>
+
+Testing markdown:
+
+``` js
+var x = 5;
+```
+
+``` html
+<div>Hello...</div>
+```
+
+> This page slug is: {{current.slug}}
+
+
+
+
+
