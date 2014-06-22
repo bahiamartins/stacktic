@@ -112,12 +112,12 @@ stacktic({src: 'src', dest: 'dest'})
 .use('./src/models/asset')
 .use('./src/controllers/pages')
 .use('./src/controllers/blogging')
-.use('./src/controllers/assets')
+.use('./src/controllers/assets');
 ```
 
 ### Models
 
-Stacktic has models. A model collects and adapts data from different sources. Use the model method to define a model. At the bare minimum a model should declare a data source.
+Stacktic has models. A model collects and adapts data from different sources. Use the `#model` method to define a model. At the bare minimum a model should declare a data source.
 
 ``` javascript
 module.exports = function(stacktic){
@@ -193,13 +193,13 @@ module.exports = function(stacktic){
 
 ### Loaders
 
-Loaders are internal components althoug you can define yours. A loader is in charge to load data from data sources, making them javascript objects.
+A loader is an internal component (although you can define yours) in charge to load data from data sources, making them javascript objects.
 
 The main function of a loader is to create a special `$content` property, containing the content of the object. This will be used (but not strictly required) later to initiate the rendering process. 
 
 #### $ stands for special
 
-Across the build process an item will be augmented with special properties by components. These properties are useful to the end user in rendering process (eg. $path to link items) or for other components (eg. $file to tell writers components the item destination).
+Across the build process an item will be augmented with special properties by components. These properties are useful to the end user in rendering process (eg. `$path` to link items) or for other components (eg. `$file` to specify item destination).
 
 Any special property should be prefixed by `$` character. This is a convenience to avoid name clashes an to leave plain names free to use.
 
