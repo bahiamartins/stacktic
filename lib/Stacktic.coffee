@@ -44,6 +44,7 @@ class Stacktic extends EventEmitter
     @controllers = []
     
     @context = new Config({})
+    @context.$root = path.join(path.resolve("/", @config.get('root', '/')), '/')
     @context.models = @models
 
   setLogger: (logger) ->

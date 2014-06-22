@@ -1,6 +1,6 @@
 _ = require("lodash")
 {EventEmitter} = require('events')
-
+pathModule = require('path')
 Collection = require("./Collection")
 Interpolator = require("./Interpolator")
 
@@ -19,13 +19,28 @@ class Route extends EventEmitter
         throw new Error('Cannot bind item')
       
       self.emit('bind:before', item)
-      item.$path = Route.interpolator.interpolate(self.path, item)
+      item.$path = self.pathFor(item)
       self.items.push(item)
       item.emit('bound', item) if item.emit
       self.emit('bind:after', item)
       true # this is due to Collection#forEach would break if accidentally returning false
     
     @
+
+  pathFor: (item) ->
+    if item
+      pathModule.join(@globalContext.$root, Route.interpolator.interpolate(@path, item))
+    else   
+      pathModule.join(@globalContext.$root, @path)
+  
+  fileFor: (item, path) ->
+    if path.match(/\/$/) 
+      path + "index.html" 
+    else 
+      if path.match(/\./)
+        path 
+      else 
+        path + ".html"
 
   setLocalContext: (fnOrObject, options = {}) ->
     if _.isFunction(fnOrObject)
@@ -59,8 +74,8 @@ class Route extends EventEmitter
 
     ctx.$renderers = @renderers if @renderers
     ctx.$route = @path
-    ctx.$path = (item and item.$path) or @path
-    ctx.$file =  (if ctx.$path.match(/\/$/) then ctx.$path + "index.html" else ((if ctx.$path.match(/\./) then ctx.$path else ctx.$path + ".html")))
+    ctx.$path = @pathFor(item)
+    ctx.$file =  @fileFor(item, ctx.$path)
     ctx.$current = item if item
     ctx
 
