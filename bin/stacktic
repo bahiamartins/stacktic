@@ -1,9 +1,0 @@
-#!/usr/bin/env node
-
-process.title = 'stacktic';
-
-require('coffee-script/register');
-var path = require('path'),
-    cli = require(path.resolve(__dirname, '../lib/cli'));
-
-cli();

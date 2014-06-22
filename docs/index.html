@@ -1,0 +1,201 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
+  <link href="/assets/css/main.css" rel="stylesheet" />
+  <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <a class="navbar-brand logo" href="/">Stacktic</a>
+      <ul class="nav navbar-nav navbar-right">
+  
+    
+      <li><a href="/docs/">Docs</a></li>
+    
+  
+    
+      <li><a href="/plugins/">Plugins</a></li>
+    
+  
+  <li><a href="https://github.com/stackticjs/stacktic" target="blank"><i class="fa fa-github"></i> Sources</a></li>
+</ul>      
+
+    </div>
+  </div>
+
+
+
+  <div class="container">
+
+<div class="page-header"><h1>Docs</h1></div>
+
+
+
+<div class="content">
+
+
+<p>A brand new Static Site Generator in a world full of Static Site Generators...
+Well the reason for that is simply: I was annoyed by any other of them. </p>
+<p>Why? They relies on files too much, configuring routes is always a mess, managing assets is confusing as well, they are often coupled with rendering engines.</p>
+<p>So it happened that when I tryed to move a website from nanoc (the best I&#39;ve tryied) to assemble.io I ended up to be frustrated enough to think &quot;I had to fix this, no matter what&quot;. </p>
+<p>Working with MVC frameworks I&#39;ve learned clean architectures and patterns that correcty isolates responsabilities to create dynamic, data-driven websites. Why we can&#39;t have that for static sites too?</p>
+<h3 id="the-right-architecture-first">The right architecture first</h3>
+<p>First of all. Static sites are composed by files, but data shouldn&#39;t be file centric and relying on files as datasources is not enough. I wish to use local and remote data, sort, paginate, query them to create complex logic and render them the way I need.</p>
+<p>The global architecture appears like that:</p>
+<p>Data</p>
+<p>Loaders</p>
+<p>Models </p>
+<p>Controllers -&gt; Routes + RenderingContexts -&gt; Renderable -&gt; Render</p>
+<h2 id="loading-phase-and-models">Loading phase and Models</h2>
+<p>So data are loaded from different sources, they can be files or the result of a rest api call, as well as the result-set of a database query.</p>
+<p>Loaded data are stored in an internal, all-in-memory datasource composed of queryable collections of data.</p>
+<p>After the loading phase all of the data of the same type should be homogeneus and organized into collections called &#39;Models&#39;. </p>
+<p>Loaders are responsible to adapt data to a standard format. Collections are composed of items and items are javascript objects with some special, well-defined properties prefixed with <code>$</code> used during the build process plus user-defined properties and functions.</p>
+<pre><code class="lang-js">Stacktic = <span class="hljs-built_in">require</span>(<span class="hljs-string">'stacktic'</span>);
+
+Stacktic.model(<span class="hljs-string">'Page'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+  <span class="hljs-keyword">this</span>.datasource = { protocol: <span class="hljs-string">'file'</span>, path: <span class="hljs-string">'pages/**'</span> };
+
+  <span class="hljs-keyword">this</span>.yfm();
+  <span class="hljs-keyword">this</span>.slug(<span class="hljs-string">'title'</span>);
+  <span class="hljs-keyword">this</span>.dates(<span class="hljs-string">'created_at'</span>, <span class="hljs-string">'updated_at'</span>);
+
+  <span class="hljs-keyword">this</span>.instanceMethods = {
+    relatedPages: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+      <span class="hljs-keyword">return</span> Stacktic.models.Page.where({category: <span class="hljs-keyword">this</span>.category});
+    }
+  };
+});
+</code></pre>
+<p>Loaders are protocol handlers, so Stacktic has a simpler way to express loaders options: an uri.</p>
+<pre><code class="lang-js">Stacktic.model(<span class="hljs-string">'Page'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+  <span class="hljs-keyword">this</span>.datasource = <span class="hljs-string">"file:/pages/**"</span>;
+
+  <span class="hljs-keyword">this</span>.yfm();
+  <span class="hljs-keyword">this</span>.slug(<span class="hljs-string">'title'</span>);
+  <span class="hljs-keyword">this</span>.dates(<span class="hljs-string">'created_at'</span>, <span class="hljs-string">'updated_at'</span>);
+
+  <span class="hljs-keyword">this</span>.instanceMethods = {
+    relatedPages: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+      <span class="hljs-keyword">return</span> Stacktic.models.Page.where({category: <span class="hljs-keyword">this</span>.category});
+    }
+  };
+});
+</code></pre>
+<p>The uri above is implicitly parsed with <code>url</code> and passed to loader registered as the uri protocol (except the <code>:</code>), in this case is the built-in <code>file</code> loader.</p>
+<h4 id="concatenation">Concatenation</h4>
+<p>You can concatenate different sources to the same collection</p>
+<pre><code class="lang-js"><span class="hljs-keyword">this</span>.datasource = [<span class="hljs-string">"file:/pages/**"</span>, <span class="hljs-string">"http://api.example.com/pages?author=me"</span>]);
+</code></pre>
+<h4 id="datasources-can-be-a-function-too">Datasources can be a function too</h4>
+<pre><code class="lang-js">Stacktic.model(<span class="hljs-string">'Version'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+  <span class="hljs-keyword">this</span>.datasource = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options, cb)</span>{</span>
+    cb(<span class="hljs-literal">null</span>, [{ $content: <span class="hljs-string">"1.2.4"</span> }]);
+  };
+});
+</code></pre>
+<h4 id="postprocessing-items">Postprocessing items</h4>
+<p>Often items needs to be enriched or further adapted to match a specific format. For instance say that we want all page items to have a slug computed from title, or that we know the property &#39;created_at&#39; of all items should be a <code>Date</code> instead of the <code>String</code> we loaded from a JSON thus we need to convert it.</p>
+<p>To perform these transformations we can either attach an handler to &#39;item:loaded&#39; event or register and use a postprocessor.</p>
+<p>Postprocessors live in the loading phase and are responsible to perform transformation on item structures.</p>
+<p>A common postprocessor is YAML Front Matter parser (YFM). YFM will take an item <code>$content</code> property extract the YAML metadata into the item itself and rewrite <code>$content</code> stripped from YAML stuffs.</p>
+<pre><code class="lang-js">Stacktic.model(<span class="hljs-string">'Page'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+  <span class="hljs-keyword">this</span>.datasource = <span class="hljs-string">"file:/pages/**"</span>;
+
+  <span class="hljs-keyword">this</span>.on(<span class="hljs-string">'load'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span>{</span>
+
+  });
+});
+</code></pre>
+<p>Postprocessors can be composed so that the result of a postprocessor is the input for a following one.</p>
+<pre><code class="lang-js">Stacktic = <span class="hljs-built_in">require</span>(<span class="hljs-string">'stacktic'</span>);
+Stacktic.use(<span class="hljs-string">'stacktic-contrib-yfm'</span>);
+
+Stacktic.phase(<span class="hljs-string">'load'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+  this.<span class="hljs-built_in">load</span>(<span class="hljs-string">'pages'</span>, [<span class="hljs-string">"file:/pages/**"</span>]).<span class="hljs-keyword">then</span>(<span class="hljs-string">'yfm'</span>).<span class="hljs-keyword">then</span>(<span class="hljs-string">'create_slug'</span>, {attr: <span class="hljs-string">"title"</span>}).<span class="hljs-keyword">then</span>(<span class="hljs-string">'dates'</span>, {<span class="hljs-string">"attrs"</span>: [<span class="hljs-string">'created_at'</span>, <span class="hljs-string">'updated_at'</span>]});
+});
+</code></pre>
+<p><code>then</code> implements a sort of Promise interface and can take either a function or the pair <code>name, options</code> where name is the <code>name</code> of a registered function, and <code>options</code> are additional options that will be passed as the last arguments to the function itself.</p>
+<h2 id="2-logic-phase">2. Logic Phase</h2>
+<p>Well now we have all of our data organized in collections we can query, think about them like the <strong>model</strong> part of an MVC frameworks.</p>
+<p>Well now we can go on with the logic phase that starts after all the items are loaded. In this phase we will instruct Stacktic on how to build stuffs.</p>
+<p>So first we will create a global context for the rendering phase. Then we bind items to their routes and in the end we trigger the rendering phase itself.</p>
+<pre><code class="lang-js">Stacktic.controller(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+
+  <span class="hljs-keyword">this</span>.context.<span class="hljs-keyword">set</span>(<span class="hljs-string">'myGlobalContextVar'</span>, <span class="hljs-string">'a Value'</span>);
+
+  <span class="hljs-keyword">this</span>.route(<span class="hljs-string">'/'</span>, <span class="hljs-keyword">this</span>.models.Page.where({slug: <span class="hljs-string">"home"</span>}), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+    <span class="hljs-comment">// Build local context here</span>
+
+    <span class="hljs-keyword">this</span>.nav = <span class="hljs-keyword">this</span>.models.Page.reject({slug: <span class="hljs-string">"home"</span>});
+
+  }).render(<span class="hljs-string">'hbs'</span>, {layout: <span class="hljs-string">"home"</span>});
+
+});
+</code></pre>
+<p>Routing is the act of binding an item to its path</p>
+<h1 id="build-phases-and-components">Build phases and Components</h1>
+<h2 id="1-loading">1. Loading</h2>
+<p>Loading phase takes place when the building starts. In this phase all&#39;items are loaded from configured datasources.</p>
+<h1 id="internal-item-attributes">Internal Item Attributes</h1>
+<h2 id="-collection">$collection</h2>
+<p>The name of the collection this item belongs to.
+Available on &#39;item:loaded&#39;</p>
+<h2 id="-raw">$raw</h2>
+<p>The raw content of this item.
+Available on &#39;item:loaded&#39;</p>
+<h2 id="-path">$path</h2>
+<p>The route binding path of this item.
+Available on &#39;item:bind&#39;</p>
+<h2 id="-rendered">$rendered</h2>
+<p>The rendered content of this item.
+Available for renderers after running a renderer against the item and on &#39;item:rendered&#39;</p>
+<ul>
+<li>Event driven</li>
+<li>Asynchronous</li>
+<li>Flexible</li>
+</ul>
+<h3 id="built-in-loaders">Built in loaders</h3>
+<ul>
+<li>file</li>
+<li>http</li>
+<li>https</li>
+</ul>
+<h3 id="built-in-processors">Built in processors</h3>
+<ul>
+<li>yfm</li>
+<li>slug</li>
+<li>date</li>
+</ul>
+<h3 id="built-in-renderers">Built in renderers</h3>
+<ul>
+<li>hbs</li>
+<li>md</li>
+</ul>
+
+  
+</div>
+
+  </div>
+<footer class="bs-footer footer" role="contentinfo">
+  <div class="container">
+
+<p>Stacktic is made for you by <a href="https://github.com/mcasimir">mcasimir</a></p>
+<p><a href="https://github.com/mcasimir/stacktic"><i class="fa fa-github"></i> Github</a></p>
+<p>Published under the <a href="https://raw.githubusercontent.com/mcasimir/stacktic/master/LICENSE">MIT license</a>.</p>
+
+
+  </div>
+</footer>
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

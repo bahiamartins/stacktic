@@ -1,0 +1,484 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Patua+One" rel="stylesheet" type="text/css">
+  <link href="/assets/css/main.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <a class="navbar-brand logo" href="/">Stacktic</a>
+      <ul class="nav navbar-nav navbar-right">
+  
+    
+      <li><a href="/docs/">Docs</a></li>
+    
+  
+    
+      <li><a href="/plugins/">Plugins</a></li>
+    
+  
+  <li><a href="https://github.com/stackticjs/stacktic" target="blank"><i class="fa fa-github"></i> Sources</a></li>
+</ul>      
+
+    </div>
+  </div>
+
+
+<div class="jumbotron">
+<div class="container">
+<h1 class="logo">Stacktic</h1>
+
+<h2 id="a-stacked-static-site-generator-for-node-js">A Stacked Static Site Generator for Node.js</h2>
+<p>Stacktic is the Static Site Generator that mimics MVC frameworks. Working with MVC frameworks we learned clean architectures and patterns that correcty isolates responsabilities to create dynamic, data-driven websites. Why can&apos;t we have that for static sites too?</p>
+
+
+</div>
+</div>
+<div class="banner">
+  <div class="container">
+    Current 
+  </div>
+</div>
+
+
+  <div class="container">
+
+
+
+<div class="row">
+  <div class="col-sm-3 sidebar-container">
+    <ul class="toc sidebar nav" id="toc">
+    <li class="toc1"><a href="#getting-started">Getting Started</a><ul class="nav"><li class="toc2"><a href="#install">Install</a></li><li class="toc2"><a href="#usage">Usage</a></li><li class="toc2"><a href="#reference-directory-structure">Reference directory structure</a></li></ul></li><li class="toc1"><a href="#your-first-website">Your first website</a><ul class="nav"><li class="toc2"><a href="#plugins">Plugins</a></li><li class="toc2"><a href="#stackticfile">Stackticfile</a></li><li class="toc2"><a href="#organizing-your-sources">Organizing your sources</a></li><li class="toc2"><a href="#models">Models</a></li><li class="toc2"><a href="#loaders">Loaders</a></li><li class="toc2"><a href="#collections">Collections</a></li><li class="toc2"><a href="#controllers">Controllers</a></li><li class="toc2"><a href="#routing-and-rendering-context">Routing and Rendering Context</a></li><li class="toc2"><a href="#rendering">Rendering</a></li><li class="toc2"><a href="#views">Views</a></li></ul></li></ul>
+  </div>
+  <div class="col-sm-9">
+<div class="content">
+
+
+
+
+<h2 id="getting-started">Getting Started</h2>
+<h3 id="install">Install</h3>
+<p><em>Stacktic</em> is released as npm package, so to install open a shell and type</p>
+<pre><code><span class="hljs-built_in">npm</span> i -g stacktic
+</code></pre><p>Then you will need to install stacktic as a local dependence, so run</p>
+<pre><code><span class="hljs-comment">npm</span> <span class="hljs-comment">i</span> <span class="hljs-comment">stacktic</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">save</span><span class="hljs-literal">-</span><span class="hljs-comment">dev</span>
+</code></pre><p>from the site project folder.</p>
+<h3 id="usage">Usage</h3>
+<p>Although you can easily use stacktic by requiring it in your node.js scripts and gulp/grunt tasks it has a minimal command line interface that requires you to place a stackticfile.js or stackticfile.coffe in your project directory.</p>
+<p>To build your just run</p>
+<pre><code>stacktic
+</code></pre><p>from the site project folder.</p>
+<h3 id="reference-directory-structure">Reference directory structure</h3>
+<p>We will assume this directory structure across the following sections.</p>
+<pre><code>myWebsite/
+  src/
+    assets/
+      js/
+      css/
+    controllers/
+    models/
+    layouts/
+    pages/
+  <span class="hljs-keyword">out</span>/
+
+  stakticfile<span class="hljs-preprocessor">.js</span>
+</code></pre><p><strong>NOTE:</strong> You are not forced in any way to follow this configuration.</p>
+<h2 id="your-first-website">Your first website</h2>
+<h3 id="plugins">Plugins</h3>
+<p>Stacktic plugins are very similar to grunt plugins: they are just functions.</p>
+<pre><code class="lang-js">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+  <span class="hljs-comment">// your code here</span>
+};
+</code></pre>
+<p>You can use a plugin requiring it with <code>#use</code> method.</p>
+<pre><code class="lang-js">stacktic.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;myplugin&apos;</span>);
+</code></pre>
+<p>Obviously you can require plugins from a plugin itself</p>
+<pre><code class="lang-js"><span class="hljs-comment">// myplugin.js</span>
+module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+  stacktic.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;anotherplugin&apos;</span>);
+};
+</code></pre>
+<h3 id="stackticfile">Stackticfile</h3>
+<p>stackticfile.js is a plain node script that is runned by stacktic CLI</p>
+<pre><code class="lang-js">var stacktic = <span class="hljs-keyword">require</span>(<span class="hljs-string">&apos;stacktic&apos;</span>);
+
+stacktic({src: <span class="hljs-string">&apos;src&apos;</span>, dest: <span class="hljs-string">&apos;dest&apos;</span>})
+.model(/*<span class="hljs-keyword">...</span> */)
+.controller(/*<span class="hljs-keyword">...</span> */)
+.build();
+</code></pre>
+<h3 id="organizing-your-sources">Organizing your sources</h3>
+<p>Althoug you can put everything in the <code>stackticfile.js</code> it is a good idea to split everithing in separate modules, especially to perform efficient rebuilds with gulp/grunt watch tasks.</p>
+<p>So we will create a simple stackticfile that only requires models and controllers we will define elsewhere as plugins.</p>
+<pre><code class="lang-js"><span class="hljs-keyword">var</span> stacktic = <span class="hljs-keyword">require</span>(<span class="hljs-string">&apos;stacktic&apos;</span>);
+
+stacktic({src: <span class="hljs-string">&apos;src&apos;</span>, dest: <span class="hljs-string">&apos;dest&apos;</span>})
+.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;./src/models/page&apos;</span>)
+.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;./src/models/post&apos;</span>)
+.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;./src/models/comment&apos;</span>)
+.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;./src/controllers/pages&apos;</span>)
+.<span class="hljs-keyword">use</span>(<span class="hljs-string">&apos;./src/controllers/blogging&apos;</span>)
+.build();
+</code></pre>
+<h3 id="models">Models</h3>
+<p>Stacktic has models. A model collects and adapts data from different sources. Use the <code>#model</code> method to define a model. At the bare minimum a model should declare a data source.</p>
+<pre><code class="lang-javascript">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+
+  stacktic
+  .model(<span class="hljs-string">&quot;Page&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    <span class="hljs-keyword">this</span>.dataSource(<span class="hljs-string">&apos;fs&apos;</span>, {
+      src: <span class="hljs-string">&apos;pages/**/*&apos;</span>
+    });
+  })
+
+};
+</code></pre>
+<p>You can postprocess and adapt data after their are loaded in many ways:</p>
+<pre><code class="lang-javascript">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+
+  stacktic
+  .model(<span class="hljs-string">&quot;Page&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    <span class="hljs-keyword">this</span>.dataSource(<span class="hljs-string">&apos;fs&apos;</span>, {
+      src: <span class="hljs-string">&apos;pages/**/*&apos;</span>
+    });
+
+    <span class="hljs-comment">// Via plugins</span>
+    <span class="hljs-keyword">this</span>.parseYfm();
+    <span class="hljs-keyword">this</span>.slug(<span class="hljs-string">&apos;title&apos;</span>);
+    <span class="hljs-keyword">this</span>.parseDates(<span class="hljs-string">&apos;createdAt&apos;</span>, <span class="hljs-string">&apos;updatedAt&apos;</span>);
+
+    <span class="hljs-comment">// Via callbacks</span>
+    <span class="hljs-keyword">this</span>.callback(<span class="hljs-string">&apos;validate:after&apos;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span>{</span>
+      item.excerpt = item.$content.slice(<span class="hljs-number">0</span>, <span class="hljs-number">200</span>) + <span class="hljs-string">&quot;...&quot;</span>;
+    });
+  });
+
+};
+</code></pre>
+<p>Stacktic is not limited to the concept of using files as data, you can load them virtually from any source: APIs, databases, whatever ..., you will just need the right loader for that.</p>
+<pre><code class="lang-js">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+
+  stacktic
+  .model(<span class="hljs-string">&quot;Comment&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+
+    <span class="hljs-keyword">this</span>.dataSource(<span class="hljs-string">&apos;rest&apos;</span>, {
+      url: <span class="hljs-string">&apos;http:/api.example.com/comments&apos;</span>,
+      format: <span class="hljs-string">&apos;json&apos;</span>
+    });
+
+    <span class="hljs-comment">// Validate data from untrusted sources</span>
+    <span class="hljs-keyword">this</span>.validate({<span class="hljs-string">&apos;author&apos;</span>: {presence: <span class="hljs-literal">true</span>}});
+
+    <span class="hljs-comment">// Adapt data as you wish with callbacks</span>
+    <span class="hljs-keyword">this</span>.callback(<span class="hljs-string">&apos;load:after&apos;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span>{</span>
+      item.reliability = item.totalVoters == <span class="hljs-number">0</span> ? <span class="hljs-number">1</span> : item.upVoters / item.totalVoters;
+    })
+
+    <span class="hljs-comment">// Create instance methods</span>
+    <span class="hljs-keyword">this</span>.prototype.isReliable(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.reliability &gt; <span class="hljs-number">0.5</span>;
+    });
+
+    <span class="hljs-keyword">this</span>.parseDates(<span class="hljs-string">&apos;postedAt&apos;</span>);
+
+  });
+
+};
+</code></pre>
+<h3 id="loaders">Loaders</h3>
+<p>A loader is an internal component (although you can define yours) in charge to load data from data sources, making them javascript objects.</p>
+<p>The main function of a loader is to create a special <code>$content</code> property, containing the content of the object. This will be used (but not strictly required) later to initiate the rendering process. </p>
+<h4 id="-stands-for-special">$ stands for special</h4>
+<p>Across the build process an item will be augmented with special properties by components. These properties are useful to the end user in rendering process (eg. <code>$path</code> to link items) or for other components (eg. <code>$file</code> to specify item destination).</p>
+<p>Any special property should be prefixed by <code>$</code> character. This is a convenience to avoid name clashes an to leave plain names free to use.</p>
+<h3 id="collections">Collections</h3>
+<p>Once a model is loaded it will expose a collection interface to query and manipulate model instances. Collections are a powerful way to handle data. Collection API is similar to many model querying DSLs.</p>
+<p>Models will be available in controllers. So inside a controller you could do:</p>
+<pre><code class="lang-js"><span class="hljs-tag">this</span><span class="hljs-class">.models</span><span class="hljs-class">.Page</span><span class="hljs-class">.where</span>(<span class="hljs-rules">{<span class="hljs-rule">$<span class="hljs-attribute">slug</span>:<span class="hljs-value"> home</span></span></span>});
+</code></pre>
+<p>or</p>
+<pre><code class="lang-js"><span class="hljs-keyword">this</span>.models.Post.sortBy(<span class="hljs-string">&apos;created_at&apos;</span>, <span class="hljs-string">&apos;desc&apos;</span>).paginate(<span class="hljs-number">10</span>);
+</code></pre>
+<h4 id="collection-api-methods">Collection API methods</h4>
+<p>This is the full list of collection methods. Most of them are adapters to <a href="http://lodash.com">Lodash</a> collection methods, so refer to <a href="http://lodash.com/docs">Lodash Docs</a> for a better explanation of their behaviour.</p>
+<p>For other methods you will find documentation on Stacktic website.</p>
+<h5 id="lodash-collections-methods">Lodash Collections Methods</h5>
+<ul>
+<li>at</li>
+<li>contain</li>
+<li>countBy</li>
+<li>every</li>
+<li>filter</li>
+<li>find</li>
+<li>findLast</li>
+<li>forEach</li>
+<li>forEachRight</li>
+<li>groupBy</li>
+<li>indexBy</li>
+<li>invoke</li>
+<li>map</li>
+<li>max</li>
+<li>min</li>
+<li>pluck</li>
+<li>reduce</li>
+<li>reduceRight</li>
+<li>reject</li>
+<li>sample</li>
+<li>shuffle</li>
+<li>some</li>
+<li>sortBy</li>
+<li>where</li>
+</ul>
+<h5 id="native-collection-methods">Native collection methods</h5>
+<ul>
+<li>paginate</li>
+<li>slice</li>
+<li>offset</li>
+<li>limit</li>
+<li>first</li>
+<li>last</li>
+<li>concat</li>
+<li>append</li>
+<li>prepend</li>
+<li>push</li>
+<li>unshift</li>
+<li>pop</li>
+<li>shift</li>
+<li>sort</li>
+<li>merge</li>
+<li>toArray</li>
+</ul>
+<p>Aliases</p>
+<ul>
+<li>include &#x2192; contains</li>
+<li>all &#x2192; every</li>
+<li>select &#x2192; filter</li>
+<li>detect &#x2192; find</li>
+<li>findWhere &#x2192; find</li>
+<li>each &#x2192; forEach</li>
+<li>eachRight &#x2192; forEachRight</li>
+<li>collect &#x2192; map</li>
+<li>foldl &#x2192; reduce </li>
+<li>inject &#x2192; reduce</li>
+<li>foldr &#x2192; reduceRight</li>
+<li>any &#x2192; some</li>
+</ul>
+<h3 id="controllers">Controllers</h3>
+<p>Inside controllers you will create routes, describe the rendering process of a route, bind model items to routes and build the rendering context.</p>
+<p><strong>NOTE:</strong> the <code>$slug</code> property is created via <code>#slug</code> method called in model that is provided by the built-in slug plugin.</p>
+<pre><code class="lang-javascript">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+
+  stacktic
+  .controller(<span class="hljs-string">&quot;Pages&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+
+    <span class="hljs-comment">// Manipulate global rendering context</span>
+    <span class="hljs-keyword">this</span>.context.nav = <span class="hljs-keyword">this</span>.models.Page.where({nav: <span class="hljs-literal">true</span>}).sortBy(<span class="hljs-string">&apos;title&apos;</span>);
+
+    <span class="hljs-comment">// Bind object to routes</span>
+    <span class="hljs-keyword">this</span>.route(<span class="hljs-string">&quot;/&quot;</span>, 
+      <span class="hljs-keyword">this</span>.models.Page.where({ 
+        $slug: <span class="hljs-string">&quot;home&quot;</span>
+      })
+    )
+
+    <span class="hljs-comment">// Mix whatever you want to local rendering context</span>
+    .context({ 
+      isHome: <span class="hljs-literal">true</span>
+    });
+
+    <span class="hljs-comment">// Create paths interpolating bound items properies</span>
+    <span class="hljs-keyword">this</span>.route(<span class="hljs-string">&quot;/:{$slug}/&quot;</span>, <span class="hljs-keyword">this</span>.models.Page.reject({$slug: <span class="hljs-string">&quot;home&quot;</span>}));
+
+  });
+
+};
+</code></pre>
+<p><strong>NOTE:</strong> the name of a controller is only for further referencing purpose, you can call the way you prefer.  </p>
+<p>Keep going to illustrate some more features:</p>
+<pre><code class="lang-javascript">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+
+  stacktic
+  .controller(<span class="hljs-string">&quot;Blogging&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+
+    <span class="hljs-comment">// paginate will group items in pages that are </span>
+    <span class="hljs-comment">// abjects like this: {page: [page number], items: [items]}</span>
+    <span class="hljs-keyword">var</span> blogPages = <span class="hljs-keyword">this</span>.models.Post.sortBy(<span class="hljs-string">&apos;created_at&apos;</span>, <span class="hljs-string">&apos;desc&apos;</span>).paginate(<span class="hljs-number">10</span>);
+
+    <span class="hljs-comment">// Some ways to manipulate items</span>
+    blogPages.limit(<span class="hljs-number">1</span>).merge({
+      title: <span class="hljs-string">&quot;Blog&quot;</span>
+    });
+
+    <span class="hljs-keyword">var</span> i = <span class="hljs-number">1</span>;
+    blogPages.offset(<span class="hljs-number">1</span>).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span>{</span>
+      i++;
+      item.title = <span class="hljs-string">&quot;Blog page &quot;</span> + i;
+    });
+
+    <span class="hljs-keyword">this</span>.context.blogPages = blogPages;
+
+    <span class="hljs-comment">// Configure rendering</span>
+    <span class="hljs-keyword">this</span>.route(<span class="hljs-string">&apos;/blog/&apos;</span>, blogPages.limit(<span class="hljs-number">1</span>))
+    .render(<span class="hljs-string">&apos;hbs&apos;</span>, {template: <span class="hljs-string">&apos;blog&apos;</span>})
+
+    <span class="hljs-keyword">this</span>.route(<span class="hljs-string">&apos;/blog/:{page}/&apos;</span>, blogPages.offset(<span class="hljs-number">1</span>))
+    .render(<span class="hljs-string">&apos;hbs&apos;</span>, {template: <span class="hljs-string">&apos;blog&apos;</span>});
+
+    <span class="hljs-comment">// Compose renderers</span>
+    <span class="hljs-keyword">this</span>.route(<span class="hljs-string">&apos;/blog/posts/:{$slug}/&apos;</span>, model.Posts.sortBy(<span class="hljs-string">&apos;created_at&apos;</span>))
+    .context(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span>{</span>
+      <span class="hljs-keyword">this</span>.comments = stacktic.models.Comment.where({postPath: item.$path});
+    })
+    .render(<span class="hljs-string">&apos;md&apos;</span>).render(<span class="hljs-string">&apos;hbs&apos;</span>);
+
+  });
+
+};
+</code></pre>
+<p>You can even setup unbound routes</p>
+<pre><code class="lang-js">module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stacktic)</span>{</span>
+
+  stacktic
+  .controller(<span class="hljs-string">&quot;Sitemap&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+
+    <span class="hljs-keyword">this</span>.route(<span class="hljs-string">&apos;/sitemap.xml&apos;</span>)
+    .context(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+      <span class="hljs-keyword">this</span>.sitemapItems = stacktic.createCollection()
+      .append(<span class="hljs-keyword">this</span>.models.Page.items)
+      .append(<span class="hljs-keyword">this</span>.models.Post.items)
+    })
+    .render(<span class="hljs-string">&apos;hbs&apos;</span>, {
+      template: <span class="hljs-string">&apos;sitemap&apos;</span>, layout: <span class="hljs-literal">false</span>
+    });
+
+  });
+
+};
+</code></pre>
+<h3 id="routing-and-rendering-context">Routing and Rendering Context</h3>
+<p>Once a controller creates a route the route will setup a rendering context.
+A rendering context is also called a renderable object (an object that is ready to be rendered).</p>
+<p>A renderable will contain:</p>
+<ul>
+<li>Global context properties</li>
+<li>Local context properties (overriding globals)</li>
+<li><code>$current</code> property referencing the bound object if route is bound</li>
+<li><code>$path</code> as the current path</li>
+<li><code>$file</code> the destination path calculated from $path appending index.html if the route path ends with &apos;/&apos;</li>
+</ul>
+<p>If the route is bound it will copy the <code>$path</code> property in <code>$current</code> object to make inverse routing possible.</p>
+<h4 id="path-to-file-mapping">Path to <code>$file</code> mapping</h4>
+<ul>
+<li><code>route(&quot;/mypage/&quot;)</code> &#x2192; &apos;/mypage/index.html&apos;</li>
+<li><code>route(&quot;/mypage&quot;)</code> &#x2192; &apos;/mypage.html&apos;</li>
+<li><code>route(&quot;/mypage.extname&quot;)</code> &#x2192; &apos;/mypage.extname&apos;</li>
+<li><code>route(&quot;/mypage.extname/&quot;)</code> &#x2192; &apos;/mypage.extname/index.html&apos;</li>
+</ul>
+<h3 id="rendering">Rendering</h3>
+<p>Renderers transforms a string to another string optionally taking account of the current context. Stacktic currently ships with some built-in renderers:</p>
+<ul>
+<li><em>hbs</em>: render handlebars templates, it has partials, layouts and some handy helpers pre-registered for you</li>
+<li><em>md</em>: render markdown through marked and highlight.js </li>
+<li><em>less</em>: less</li>
+<li><em>uglify</em>: minify javascript through <code>uglify</code></li>
+<li><em>cssmin</em>: minify css through <code>uglify</code></li>
+<li><em>toc</em>: creates toc using a dom parser</li>
+</ul>
+<p><code>hbs</code> is the default renderer, obviously you can change this.</p>
+<p>You can learn more about rendering engines an other built in plugins on website.</p>
+<h3 id="views">Views</h3>
+<p>Views are inputs for renderers. Views can be either taken from <code>$content</code> property of items
+or passed as external templates if the rendering engine allows it.</p>
+<h4 id="a-note-about-hbs-renderer">A note about <code>hbs</code> renderer</h4>
+<p><code>hbs</code> renderer ships with the ability to define layouts, partials and templates both from item content or from external templates.</p>
+<p>It also has some convenient helpers both for common tasks like formatting dates and embedding markdown and for stacktic related tasks.</p>
+<p>List of available helpers:</p>
+<ul>
+<li>md: renders section as markdown</li>
+<li>moment: format date with moment.js</li>
+<li>capture: capture a block from a template to be used in layout</li>
+<li>yield: used in layout will yield to template body if no argument is supplied or to a captured block if the block name is supplied </li>
+<li>ifCurrent/unlessCurrent: run blocks conditionally according to the result of comparing the passed item with the current one</li>
+</ul>
+<h4 id="examples">Examples</h4>
+<p>The following are some views according to the examples above.</p>
+<pre><code><span class="xml"><span class="hljs-comment">&lt;!-- layouts/default.hbs --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">&quot;UTF-8&quot;</span>&gt;</span>
+  </span><span class="hljs-expression">{{<span class="hljs-begin-block">#<span class="hljs-keyword">unless</span> isHome</span>}}</span><span class="xml"> </span><span class="hljs-expression">{{!<span class="hljs-variable">--</span> <span class="hljs-variable">we</span> <span class="hljs-variable">defined</span> <span class="hljs-variable">this</span> <span class="hljs-variable"><span class="hljs-keyword">in</span></span> <span class="hljs-variable">controller</span> <span class="hljs-variable">--</span>}}</span><span class="xml">
+  <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>Stacktic - Stacked Static Site Generator | My Website<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+  </span><span class="hljs-expression">{{<span class="hljs-variable"><span class="hljs-keyword">else</span></span>}}</span><span class="xml">
+  <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>My Website<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+  </span><span class="hljs-expression">{{<span class="hljs-end-block">/<span class="hljs-keyword">unless</span></span>}}</span><span class="xml">
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+  </span><span class="hljs-expression">{{{<span class="hljs-variable"><span class="hljs-keyword">yield</span></span>}}</span><span class="xml">}
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
+</code></pre><p>A partial</p>
+<pre><code><span class="xml"><span class="hljs-comment">&lt;!-- partials/nav.hbs --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">ul</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">&quot;nav navbar-nav navbar-right&quot;</span>&gt;</span>
+  </span><span class="hljs-expression">{{<span class="hljs-begin-block">#<span class="hljs-keyword">each</span> nav.items </span>}}</span><span class="xml">
+    </span><span class="hljs-expression">{{<span class="hljs-begin-block">#ifCurrent </span>$<span class="hljs-variable">path</span> }}</span><span class="xml">
+      <span class="hljs-tag">&lt;<span class="hljs-title">li</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">&quot;active&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">&quot;</span></span></span><span class="hljs-expression">{{$<span class="hljs-variable">path</span>}}</span><span class="xml"><span class="hljs-tag"><span class="hljs-value">&quot;</span>&gt;</span></span><span class="hljs-expression">{{<span class="hljs-variable">title</span>}}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+    </span><span class="hljs-expression">{{<span class="hljs-variable"><span class="hljs-keyword">else</span></span>}}</span><span class="xml">
+      <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">&quot;</span></span></span><span class="hljs-expression">{{$<span class="hljs-variable">path</span>}}</span><span class="xml"><span class="hljs-tag"><span class="hljs-value">&quot;</span>&gt;</span></span><span class="hljs-expression">{{<span class="hljs-variable">title</span>}}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+    </span><span class="hljs-expression">{{<span class="hljs-end-block">/ifCurrent</span>}}</span><span class="xml">
+  </span><span class="hljs-expression">{{<span class="hljs-end-block">/<span class="hljs-keyword">each</span></span>}}</span><span class="xml">
+<span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span></span>
+</code></pre><p>A page</p>
+<pre><code><span class="hljs-header">&lt;!-- pages/home.hbs --&gt;
+---</span>
+<span class="hljs-header">nav: true
+---</span>
+
+&lt;h1&gt;Hi!&lt;/h1&gt;
+</code></pre><p>A template</p>
+<pre><code><span class="xml"><span class="hljs-comment">&lt;!-- templates/blog.hbs --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">h1</span>&gt;</span></span><span class="hljs-expression">{{$<span class="hljs-variable">current.title</span>}}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-title">h1</span>&gt;</span>
+
+</span><span class="hljs-expression">{{<span class="hljs-begin-block">#<span class="hljs-keyword">each</span> </span>$<span class="hljs-variable">current.items</span> }}</span><span class="xml">
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">&quot;post&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">h2</span>&gt;</span></span><span class="hljs-expression">{{<span class="hljs-variable">title</span>}}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-title">h2</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span></span><span class="hljs-expression">{{<span class="hljs-variable">excerpt</span>}}</span><span class="xml"> <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">&quot;</span></span></span><span class="hljs-expression">{{$<span class="hljs-variable">path</span>}}</span><span class="xml"><span class="hljs-tag"><span class="hljs-value">&quot;</span>&gt;</span>Continue reading...<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+</span><span class="hljs-expression">{{<span class="hljs-end-block">/<span class="hljs-keyword">each</span></span>}}</span><span class="xml"></span>
+</code></pre><p>A post</p>
+<pre><code><span class="hljs-header">&lt;!-- posts/my-first-post.md --&gt;
+---</span>
+title: My first post
+<span class="hljs-header">created_at: 1-1-2014
+---</span>
+
+Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt, inventore, voluptatibus, cum fuga laboriosam reprehenderit quia veritatis quidem amet repellat dignissimos atque porro at temporibus minus ad rerum id officiis.
+</code></pre>  
+</div>
+  </div>
+</div>
+
+  </div>
+<footer class="bs-footer footer" role="contentinfo">
+  <div class="container">
+
+<p>Stacktic is made for you by <a href="https://github.com/mcasimir">mcasimir</a></p>
+<p><a href="https://github.com/mcasimir/stacktic"><i class="fa fa-github"></i> Github</a></p>
+<p>Published under the <a href="https://raw.githubusercontent.com/mcasimir/stacktic/master/LICENSE">MIT license</a>.</p>
+
+
+  </div>
+</footer>
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
