@@ -108,11 +108,9 @@ stacktic({src: 'src', dest: 'dest'})
 .use('./src/models/page')
 .use('./src/models/post')
 .use('./src/models/comment')
-.use('./src/models/vendor')
-.use('./src/models/asset')
 .use('./src/controllers/pages')
 .use('./src/controllers/blogging')
-.use('./src/controllers/assets');
+.build();
 ```
 
 ### Models
@@ -455,14 +453,14 @@ The following are some views according to the examples above.
 <html>
 <head>
   <meta charset="UTF-8">
-  \{{#unless isHome}} \{{!-- we defined this in controller --}}
+  {{#unless isHome}} {{!-- we defined this in controller --}}
   <title>{{$current.title}} | My Website</title>
-  \{{else}}
+  {{else}}
   <title>My Website</title>
-  \{{/unless}}
+  {{/unless}}
 </head>
 <body>
-  \{{{yield}}}
+  {{{yield}}}
 </body>
 </html>
 ```
@@ -471,13 +469,13 @@ A partial
 ```
 <!-- partials/nav.hbs -->
 <ul class="nav navbar-nav navbar-right">
-  \{{#each nav.items }}
-    \{{#ifCurrent $path }}
-      <li class="active"><a href="\{{$path}}">\{{title}}</a></li>
-    \{{else}}
-      <li><a href="\{{$path}}">\{{title}}</a></li>
-    \{{/ifCurrent}}
-  \{{/each}}
+  {{#each nav.items }}
+    {{#ifCurrent $path }}
+      <li class="active"><a href="{{$path}}">{{title}}</a></li>
+    {{else}}
+      <li><a href="{{$path}}">{{title}}</a></li>
+    {{/ifCurrent}}
+  {{/each}}
 </ul>      
 
 ```
@@ -495,15 +493,15 @@ nav: true
 A template
 ``` 
 <!-- templates/blog.hbs -->
-<h1>\{{$current.title}}</h1>
+<h1>{{$current.title}}</h1>
 
-\{{#each $current.items }}
+{{#each $current.items }}
 <div class="post">
-  <h2>\{{title}}</h2>
-  <p>\{{excerpt}} <a href="\{{$path}}">Continue reading...</a></p>
+  <h2>{{title}}</h2>
+  <p>{{excerpt}} <a href="{{$path}}">Continue reading...</a></p>
 
 </div>
-\{{/each}}
+{{/each}}
 ```
 
 A post
