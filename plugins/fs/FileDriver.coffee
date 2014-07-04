@@ -12,25 +12,32 @@ class FileDriver
 
   load: (done) =>
     base = @options.base or @src or ""
-
+    stream = @options.stream is true
     logger = FileDriver.logger
     loadFn = (file, cb) ->
       logger.verbose.writeln("[FileDriver] Loading #{file}")
-      fs.readFile file, {encoding: 'utf8'}, (err, data) ->
-        throw err if err
-        logger.verbose.ok("[FileDriver] Loaded #{file}")
-        
-        item = {
-          $content: data
-          $fs:
-            path: file
-            local: file.slice(base.length)
-            extname: path.extname(file)
-            basename: path.basename(file)
-        }
-        cb null, item
-            
 
+      item = {
+        $fs: {
+          path: file
+          base: path.resolve(base)
+          pathFromBase: file.slice(path.resolve(base).length + 1)
+          extname: path.extname(file)
+          basename: path.basename(file)          
+        }
+      }
+      
+      # If stream is set just create a read stream
+      if stream
+        item.$content = fs.createReadStream(file)
+        cb null, item
+      else
+        fs.readFile file, {encoding: 'utf8'}, (err, data) ->
+          throw err if err
+          logger.verbose.ok("[FileDriver] Loaded #{file}")
+          
+          item.$content = data
+          cb null, item
 
     if not @options.src?
       throw "you must provide src option for fs datasources"

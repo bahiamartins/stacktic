@@ -11,6 +11,10 @@ class Route extends EventEmitter
     @contextFn = _.noop
 
   bind: (collection) ->
+    # collection is a model if a function is passed
+    if _.isFunction(collection)
+      collection = collection.collection
+    
     newItems = new Collection(collection)    
     @items ||= new Collection([])
     self = @
@@ -52,15 +56,19 @@ class Route extends EventEmitter
           toBeMerged = Route.interpolator.interpolateObject(fnOrObject, item)
 
         _.extend @, toBeMerged
+    @
 
   @::context = @::setLocalContext
 
   addRenderer: (renderer, opts) ->
-    @renderers ||= []
-    @renderers.push({
-      renderer: renderer,
-      options: opts
-    })
+    if renderer is false
+      @renderers = []
+    else
+      @renderers ||= []
+      @renderers.push({
+        renderer: renderer,
+        options: opts
+      })
     @
   
   @::render = @::addRenderer

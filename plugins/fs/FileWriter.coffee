@@ -14,7 +14,13 @@ class FileWriter
   writeObject: (item, fn) =>
     destFile = path.join(FileWriter.dest, item.$file)
     mkdirp.sync path.dirname(destFile)
-    fs.writeFile destFile, item.$rendered, fn
+
+    if item.$rendered.constructor and item.$rendered.constructor.name is 'ReadStream'
+      source = item.$rendered
+      source.on('end', -> fn(null))
+      source.pipe(fs.createWriteStream(destFile))
+    else
+      fs.writeFile destFile, item.$rendered, fn
 
   write: (items, fn)->
     self = @

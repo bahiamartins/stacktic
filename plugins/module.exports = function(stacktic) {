@@ -1,0 +1,9 @@
+module.exports = function(stacktic) {
+  stacktic.Model.buildExcerpt = function(limit) {
+    limit = (limit == null) ? 100 : limit;
+
+    this.addCallback('validate:before', function(item) {
+      item.$excerpt = item.$content.substr( 0, item.$content.lastIndexOf(' ', limit ) ) + '...';
+    });
+  };
+};

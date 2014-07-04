@@ -26,6 +26,7 @@ class Renderer
     _.assign(@options, Renderer.config, options)
 
   render: (content, context, done) ->
+    Renderer.logger.verbose.writeln("[TOC] Invoked rendering for #{context.$path}")
     options = @options
     $ = cheerio.load(content)
     target = $(options.target)

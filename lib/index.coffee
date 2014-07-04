@@ -14,6 +14,7 @@ module.exports = (options) ->
   instance.use(path.resolve(__dirname, '../plugins/yfm'))
   instance.use(path.resolve(__dirname, '../plugins/json'))
   instance.use(path.resolve(__dirname, '../plugins/toc'))
+  instance.use(path.resolve(__dirname, '../plugins/sitemap'))
 
   instance.setDefaultRenderingEngines ["hbs"]
   instance.enableWriter('fs')
