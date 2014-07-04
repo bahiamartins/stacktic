@@ -1,7 +1,7 @@
 {
   "name": "stacktic",
-  "version": "1.0.0-alpha.2",
-  "description": "Stacked static site generator for node.js",
+  "version": "1.0.0-alpha.3",
+  "description": "Static Site Generator for Node.js",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
