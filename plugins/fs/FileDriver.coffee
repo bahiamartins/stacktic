@@ -23,10 +23,10 @@ class FileDriver
           base: path.resolve(base)
           pathFromBase: file.slice(path.resolve(base).length + 1)
           extname: path.extname(file)
-          basename: path.basename(file)          
+          basename: path.basename(file)
         }
       }
-      
+
       # If stream is set just create a read stream
       if stream
         item.$content = fs.createReadStream(file)
@@ -35,7 +35,7 @@ class FileDriver
         fs.readFile file, {encoding: 'utf8'}, (err, data) ->
           throw err if err
           logger.verbose.ok("[FileDriver] Loaded #{file}")
-          
+
           item.$content = data
           cb null, item
 
@@ -47,20 +47,32 @@ class FileDriver
       srcs = [srcs]
 
     files = []
+    excluded = []
     srcs.forEach (src) ->
+      isNegated = false
+      if src.match(/^\!/)
+        isNegated = true
+        src = src.slice(1)
+
       resolvedSrc = path.resolve(base, src)
       globRes = (glob.sync(resolvedSrc) or [])
       if globRes.length is 0
-        logger.log.warn("[FileDriver] glob('#{src}') returned empty array")
+        logger.log.warn("[FileDriver] Warning: datasource '#{src}' was empty.")
+
       globRes.forEach (file) ->
         if fs.lstatSync(file).isFile()
-          files.push(file)
+          if isNegated
+            excluded.push(file)
+          else
+            files.push(file)
+
+    files = _.difference(files, excluded)
 
     if files.length is 0
       done(null, [])
-
-    async.map files, loadFn, (err, items) ->
-      logger.verbose.ok('[FileDriver] All files loaded')
-      done(null, items)
+    else
+      async.map files, loadFn, (err, items) ->
+        logger.verbose.ok('[FileDriver] All files loaded')
+        done(null, items)
 
 module.exports = FileDriver

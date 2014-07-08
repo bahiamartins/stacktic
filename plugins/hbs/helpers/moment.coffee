@@ -1,6 +1,6 @@
-momentHelpers = require("handlebars-helper-moment")
+moment = require('moment')
 
 module.exports = (stacktic) ->
   stacktic.on 'hbs:registered', (hbs) ->
-    hbs.Handlebars.registerHelper momentHelpers.moment
-    hbs.Handlebars.registerHelper momentHelpers.duration
+    hbs.Handlebars.registerHelper "formatDate", (date, options) ->
+      moment(date).format(options.hash.format or 'DD MMMM - YYYY');

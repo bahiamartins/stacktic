@@ -8,19 +8,29 @@ class Loaders
     @drivers = {}
 
   registerDriver: (name, driver) ->
-    @drivers[name] = driver
+    if driver.prototype.load
+      @drivers[name] = driver
+    else # allow to register a simple function
+      @drivers[name] = ->
+      @drivers[name].prototype.load = driver
 
   resolveDriver: (type, opts = {}) ->
     Driver = @drivers[type]
     if !Driver
       throw(new Error( "Driver not found: #{type}" ))
 
-    new Driver(_.extend({}, @options, opts))
+    new Driver(opts)
 
   loadModel: (ModelClass, done) ->
     fns = _.map ModelClass.dataSources, (ds) =>
-      Driver = @resolveDriver(ds.type, ds.options)
-      Driver.load
+      opts = _.extend({}, @options, ds.options)
+      driver = @resolveDriver(ds.type, opts)
+      
+      return (done) ->
+        if driver.load.length == 2
+          driver.load(opts, done)
+        else
+          driver.load(done)
 
     async.parallel fns, (err, collections) ->
       ModelClass.collection = new Collection([])
@@ -33,10 +43,10 @@ class Loaders
 
           for cb in ModelClass.callbacks['load:after']
             cb(model)
-          
+
           for cb in ModelClass.callbacks['validate:before']
             cb(model)
-              
+
           skip = false
           model.$valid = true
 
@@ -73,14 +83,17 @@ class Loaders
 
           if not skip
             ModelClass.collection.items.push model
-      
+
+      for cb in ModelClass.callbacks['collection:ready']
+        cb(ModelClass)
+
       done()
 
   load: (modelClasses, done) ->
     self = @
     loadFn = (modelClass, callback) ->
       self.loadModel(modelClass, callback)
-    
+
     async.each modelClasses, loadFn, done
 
 module.exports = Loaders

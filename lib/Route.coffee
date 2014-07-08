@@ -14,37 +14,34 @@ class Route extends EventEmitter
     # collection is a model if a function is passed
     if _.isFunction(collection)
       collection = collection.collection
-    
-    newItems = new Collection(collection)    
+
+    newItems = new Collection(collection)
     @items ||= new Collection([])
     self = @
     newItems.forEach (item) ->
       if not item? or !_.isObject(item)
         throw new Error('Cannot bind item')
-      
+
       self.emit('bind:before', item)
       item.$path = self.pathFor(item)
       self.items.push(item)
       item.emit('bound', item) if item.emit
       self.emit('bind:after', item)
       true # this is due to Collection#forEach would break if accidentally returning false
-    
+
     @
 
   pathFor: (item) ->
     if item
       pathModule.join(@globalContext.$root, Route.interpolator.interpolate(@path, item))
-    else   
+    else
       pathModule.join(@globalContext.$root, @path)
-  
+
   fileFor: (item, path) ->
-    if path.match(/\/$/) 
-      path + "index.html" 
-    else 
-      if path.match(/\./)
-        path 
-      else 
-        path + ".html"
+    if path.match(/\/$/)
+      path + "index.html"
+    else
+      path
 
   setLocalContext: (fnOrObject, options = {}) ->
     if _.isFunction(fnOrObject)
@@ -70,7 +67,7 @@ class Route extends EventEmitter
         options: opts
       })
     @
-  
+
   @::render = @::addRenderer
 
   computeContext: (item) ->
@@ -91,7 +88,7 @@ class Route extends EventEmitter
     self = @
     if @isBound()
       (@items.map (item) ->
-        self.computeContext(item) 
+        self.computeContext(item)
       ).toArray()
     else
       [@computeContext()]

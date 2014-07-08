@@ -15,7 +15,7 @@ class HandlebarsRenderingEngine
     #
     partialsDir = path.resolve(src, config.partialsDir || 'partials')
     partials    = glob.sync(path.join(partialsDir, "**/*"))
-    
+
     partials.forEach (filename) ->
       partialContent = fs.readFileSync(filename,
         encoding: "utf8"
@@ -46,7 +46,7 @@ class HandlebarsRenderingEngine
     templatesDir  = path.resolve(src, config.templatesDir  || 'templates')
     templatesFiles = glob.sync(path.join(templatesDir, "**/*"))
     @templates = {}
-    
+
     templatesFiles.forEach (filename) =>
       templateContent = fs.readFileSync(filename,
         encoding: "utf8"
@@ -65,7 +65,7 @@ class HandlebarsRenderingEngine
     @defaultLayout = HandlebarsRenderingEngine.defaultLayout
 
   render: (content, context, done) ->
-    
+
     #
     # Context specific helpers
     #
@@ -108,14 +108,14 @@ class HandlebarsRenderingEngine
     #
     layoutName = context.$current.$layout or (@options.layout is false) or @options.layout or @defaultLayout
     layoutName = not layoutName if layoutName is true # trick to return layout false when @options.layout is false
-    layout = @layouts[layoutName] or (throw new Error("Unable to find layout #{layoutName}"))    
+    layout = @layouts[layoutName] or (throw new Error("Unable to find layout #{layoutName}"))
 
     #
     # Rendering content
     #
     body = template(context)
 
-    
+
     #
     # Should be used inside the layout to embed the body content or captured fragments
     #
@@ -124,7 +124,7 @@ class HandlebarsRenderingEngine
         new Handlebars.SafeString(body)
       else
         new Handlebars.SafeString(parts[name] or "")
-    
+
     #
     # Rendering layout
     #

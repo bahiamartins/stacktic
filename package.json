@@ -1,6 +1,6 @@
 {
   "name": "stacktic",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "Static Site Generator for Node.js",
   "main": "index.js",
   "scripts": {
@@ -28,12 +28,12 @@
     "async": "^0.9.0",
     "coffee-script": "^1.7.1",
     "validate.js": "^0.2.0",
-    "handlebars-helper-moment": "^0.2.0",
     "uglify-js": "^2.4.14",
     "cssmin": "^0.4.1",
     "less": "^1.7.1",
     "cheerio": "^0.17.0",
-    "commander": "^2.2.0"
+    "commander": "^2.2.0",
+    "moment": "^2.7.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

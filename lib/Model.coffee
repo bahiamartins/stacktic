@@ -8,13 +8,14 @@ class Model extends EventEmitter
     subClass = class extends @
     subClass.className = name
     subClass.dataSources = []
-    subClass.validations = []  
+    subClass.validations = []
     subClass.callbacks =
       'load:after': []
       'validate:before': []
       'validate:success': []
       'validate:error': []
       'validate:after': []
+      'collection:ready': []
 
     fn.apply(subClass)
     subClass
@@ -27,7 +28,7 @@ class Model extends EventEmitter
    @dataSources.push({type: type, options: opts})
 
   @dataSource = @addDataSource
-  
+
   @addCallback = (type, fn) ->
     @callbacks[type].push(fn)
 
