@@ -33,9 +33,9 @@ class Route extends EventEmitter
 
   pathFor: (item) ->
     if item
-      pathModule.join(@globalContext.$root, Route.interpolator.interpolate(@path, item))
+      pathModule.join(@globalContext.$root or "/", Route.interpolator.interpolate(@path, item))
     else
-      pathModule.join(@globalContext.$root, @path)
+      pathModule.join(@globalContext.$root or "/", @path)
 
   fileFor: (item, path) ->
     if path.match(/\/$/)

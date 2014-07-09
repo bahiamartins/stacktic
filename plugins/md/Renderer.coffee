@@ -8,6 +8,9 @@ class Renderer
 
   constructor: (options = {})->
     @config =
+      gfm: true
+      tables: true
+      sep: "\n"
       highlight: (code) ->
         highlightJs.highlightAuto(code).value
 

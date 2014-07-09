@@ -25,7 +25,7 @@ class Loaders
     fns = _.map ModelClass.dataSources, (ds) =>
       opts = _.extend({}, @options, ds.options)
       driver = @resolveDriver(ds.type, opts)
-      
+
       return (done) ->
         if driver.load.length == 2
           driver.load(opts, done)
@@ -38,14 +38,10 @@ class Loaders
       for items in collections
         for item in items
           model = new ModelClass(item)
-          model.$model = ModelClass
-          model.$type = ModelClass.name
+          model.$type = ModelClass.className
 
-          for cb in ModelClass.callbacks['load:after']
-            cb(model)
-
-          for cb in ModelClass.callbacks['validate:before']
-            cb(model)
+          ModelClass.emit('load:after', model)
+          ModelClass.emit('validate:before', model)
 
           skip = false
           model.$valid = true
@@ -72,20 +68,18 @@ class Loaders
                 throw err
 
           if model.$valid
-            for cb in ModelClass.callbacks['validate:success']
-              cb(model)
+            ModelClass.emit('validate:success', model)
           else
-            for cb in ModelClass.callbacks['validate:error']
-              cb(model)
+            ModelClass.emit('validate:error', model)
 
-          for cb in ModelClass.callbacks['validate:after']
-            cb(model)
+          ModelClass.emit('validate:after', model)
 
           if not skip
             ModelClass.collection.items.push model
 
-      for cb in ModelClass.callbacks['collection:ready']
-        cb(ModelClass)
+      ModelClass.emit('collection:ready', ModelClass)
+      ModelClass.emit('ready', ModelClass)
+      ModelClass.emit('loaded', ModelClass)
 
       done()
 

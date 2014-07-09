@@ -1,11 +1,11 @@
-# 
+#
 # External deps
-# 
+#
 path = require('path')
 _ = require('lodash')
 {EventEmitter} = require('events')
 
-# 
+#
 # Local deps
 #
 Config     = require('./Config')
@@ -24,9 +24,9 @@ Controller = require('./Controller')
 class Stacktic extends EventEmitter
 
   constructor: (config) ->
-    # 
+    #
     # Useful for plugins
-    # 
+    #
     @Model      = Model
     @Controller = Controller
     @Collection = Collection
@@ -38,14 +38,13 @@ class Stacktic extends EventEmitter
     @config = new Config({})
     _.merge @config, config
     _.merge(@logger.log.options, @config.get('logger', {}))
-    
+
     @routes = {}
     @models = {}
     @controllers = []
-    
+
     @context = new Config({})
     @context.$root = path.join(path.resolve("/", @config.get('root', '/')), '/')
-    @context.models = @models
 
   setLogger: (logger) ->
     @logger = logger
@@ -93,32 +92,32 @@ class Stacktic extends EventEmitter
     self = @
 
 
-    # 
+    #
     # Invoking loaders ...
-    # 
+    #
     self.logger.verbose.writeln('[Stacktic] Invoking loaders ...')
 
     self.loaders.load _.values(self.models), (err) ->
       self.logger.verbose.writeln('[Stacktic] All models loaded ...')
       try
-        self.controllers.forEach (fn)->  
-          Controller.define(self.routes, self.context, self.models, fn)          
+        self.controllers.forEach (fn)->
+          Controller.define(self.routes, self.context, self.models, fn)
 
         self.logger.verbose.writeln('[Stacktic] All controllers loaded ...')
-        
+
         renderables = _.flatten(_.map(_.values(self.routes), (route) -> route.getRenderables()))
-        
-        # 
+
+        #
         # Routes and global context ready
         # Invoking renderers ...
-        #         
+        #
         self.logger.verbose.writeln('[Stacktic] Invoking renderers ...')
         self.renderers.render renderables, (err, objects) ->
-        
-          # 
+
+          #
           # Everything rendered
           # Invoking writers ...
-          # 
+          #
           self.logger.verbose.writeln('[Stacktic] Invoking writers ...')
           self.writers.write _.flatten(objects), ->
             self.logger.log.ok('[Stacktic] Done.')
@@ -128,7 +127,6 @@ class Stacktic extends EventEmitter
         self.logger.log.error('[Stacktic] Aborting due to errors')
         self.logger.verbose.error(e.stack)
         done(e)
-      
+
 
 module.exports = Stacktic
-  

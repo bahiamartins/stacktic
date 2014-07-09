@@ -28,7 +28,7 @@ describe "Controller", ->
       context = {}
 
       Controller.define routeMap, context, {}, ->
-        @context.a = 1 
+        @context.a = 1
 
       context.should.eql({a: 1})
 
@@ -40,3 +40,37 @@ describe "Controller", ->
         @route("/")
 
       routeMap["/"].should.be.instanceOf(Route)
+
+    it "should inject models", ->
+      routeMap = {}
+      context = {}
+      models = {'A': 1}
+      injected = null
+
+      Controller.define routeMap, context, models, (A) ->
+        injected = A
+
+      injected.should.equal(1)
+
+    it "should inject route func", ->
+      routeMap = {}
+      context = {}
+      models = {'A': 1}
+      orig = null
+      injected = null
+
+      Controller.define routeMap, context, models, (route) ->
+        orig = @route
+        injected = route
+
+      (typeof injected is 'function' and orig == injected).should.be.true
+
+    it "should inject route context", ->
+      routeMap = {}
+      ctx = {}
+      models = {}
+
+      Controller.define routeMap, ctx, models, (context) ->
+        context.a = 1
+
+      ctx.should.eql({a: 1})

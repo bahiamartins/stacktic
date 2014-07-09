@@ -9,30 +9,36 @@ class Model extends EventEmitter
     subClass.className = name
     subClass.dataSources = []
     subClass.validations = []
-    subClass.callbacks =
-      'load:after': []
-      'validate:before': []
-      'validate:success': []
-      'validate:error': []
-      'validate:after': []
-      'collection:ready': []
+    subClass.emitter = new EventEmitter()
 
     fn.apply(subClass)
     subClass
 
   _.methods(Collection.prototype).forEach (method) =>
     @[method] = (args...) ->
+
+      # treat models args as collections
+      args = args.map (arg) ->
+        if arg.collection instanceof Collection
+          arg.collection
+        else
+          arg
+
       @collection[method].apply(@collection, args)
+
+  # Instances are EventEmitters by extends while this makes
+  # class an EventEmitter as well
+  _.methods(EventEmitter.prototype).forEach (method) =>
+    @[method] = (args...) ->
+      @emitter[method].apply(@emitter, args)
+
+  @addCallback = @on
+  @callback = @on
 
   @addDataSource = (type, opts = {}) ->
    @dataSources.push({type: type, options: opts})
 
   @dataSource = @addDataSource
-
-  @addCallback = (type, fn) ->
-    @callbacks[type].push(fn)
-
-  @callback = @addCallback
 
   @addValidation = (constraints, opts = {}) ->
     @validations.push({constraints: constraints, invalid: opts.invalid})

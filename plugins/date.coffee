@@ -1,5 +1,4 @@
 _ = require('lodash')
-yfm = require('yfm')
 
 module.exports = (stacktic) ->
   stacktic.Model.parseDates = (attrs...) ->
