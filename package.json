@@ -1,6 +1,6 @@
 {
   "name": "stacktic",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-beta.1",
   "description": "Static Site Generator for Node.js",
   "main": "index.js",
   "scripts": {

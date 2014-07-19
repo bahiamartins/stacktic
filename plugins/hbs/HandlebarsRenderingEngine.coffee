@@ -70,7 +70,7 @@ class HandlebarsRenderingEngine
     # Context specific helpers
     #
     Handlebars.registerHelper "ifCurrent", (path, options) ->
-      if path is context.$current and context.$current.$path
+      if path and (path is (context.$current and context.$current.$path))
         options.fn this
       else
         options.inverse this

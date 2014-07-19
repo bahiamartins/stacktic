@@ -71,12 +71,13 @@ class Route extends EventEmitter
   @::render = @::addRenderer
 
   computeContext: (item) ->
-    ctx = _.cloneDeep @globalContext
+    ctx = {}
     if item
       @contextFn.call(ctx, item)
     else
       @contextFn.call(ctx)
 
+    ctx.$root = @globalContext.$root
     ctx.$renderers = @renderers if @renderers
     ctx.$route = @path
     ctx.$path = @pathFor(item)

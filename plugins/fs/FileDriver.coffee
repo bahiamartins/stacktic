@@ -40,7 +40,7 @@ class FileDriver
           cb null, item
 
     if not @options.src?
-      throw "you must provide src option for fs datasources"
+      throw new Error("you must provide src option for fs datasources")
 
     srcs = @options.src
     if not _.isArray(srcs)
